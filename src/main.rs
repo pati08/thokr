@@ -72,13 +72,12 @@ impl SupportedLanguage {
     }
 }
 
-#[derive(Debug)]
-struct App {
+struct App<'a> {
     cli: Option<Cli>,
-    thok: Thok,
+    thok: Thok<'a>,
 }
 
-impl App {
+impl App<'_> {
     fn new(cli: Cli) -> Self {
         let mut count = 0;
         let pace = cli.pace.map(|p| p as f64);

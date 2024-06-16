@@ -3,6 +3,8 @@ use crate::TICK_RATE_MS;
 use chrono::prelude::*;
 use directories::ProjectDirs;
 use itertools::Itertools;
+use ratatui::text::Text;
+use std::cell::OnceCell;
 use std::fs::OpenOptions;
 use std::io::{self, Write};
 use std::{char, collections::HashMap, time::SystemTime};
@@ -21,8 +23,7 @@ pub struct Input {
 }
 
 /// represents a test being displayed to the user
-#[derive(Debug)]
-pub struct Thok {
+pub struct Thok<'a> {
     pub prompt: String,
     pub input: Vec<Input>,
     pub raw_coords: Vec<(f64, f64)>,
@@ -37,9 +38,10 @@ pub struct Thok {
     pub std_dev: f64,
     pub pace: Option<f64>,
     pub death_mode: bool,
+    pub skull_cache: OnceCell<Text<'a>>,
 }
 
-impl Thok {
+impl Thok<'_> {
     pub fn new(
         prompt: String,
         number_of_words: usize,
@@ -62,6 +64,7 @@ impl Thok {
             std_dev: 0.0,
             pace,
             death_mode,
+            skull_cache: OnceCell::new(),
         }
     }
 
