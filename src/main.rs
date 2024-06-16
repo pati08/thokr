@@ -53,6 +53,10 @@ pub struct Cli {
     /// the pace cursor's speed
     #[clap(long)]
     pace: Option<u16>,
+
+    /// is death mode enabled
+    #[clap(short = 'd', long = "death-mode")]
+    death_mode: bool,
 }
 
 #[derive(Debug, Copy, Clone, ArgEnum, strum_macros::Display)]
@@ -93,7 +97,7 @@ impl App {
         };
         if cli.number_of_sentences.is_some() {
             Self {
-                thok: Thok::new(prompt, count, cli.number_of_secs.map(|ns| ns as f64), pace),
+                thok: Thok::new(prompt, count, cli.number_of_secs.map(|ns| ns as f64), pace, cli.death_mode),
                 cli: Some(cli),
             }
         } else {
@@ -102,7 +106,8 @@ impl App {
                     prompt,
                     cli.number_of_words,
                     cli.number_of_secs.map(|ns| ns as f64),
-                    pace
+                    pace,
+                    cli.death_mode,
                 ),
                 cli: Some(cli),
             }
@@ -130,13 +135,14 @@ impl App {
             },
         };
         if cli.number_of_sentences.is_some() {
-            self.thok = Thok::new(prompt, count, cli.number_of_secs.map(|ns| ns as f64), pace);
+            self.thok = Thok::new(prompt, count, cli.number_of_secs.map(|ns| ns as f64), pace, cli.death_mode);
         } else {
             self.thok = Thok::new(
                 prompt,
                 cli.number_of_words,
                 cli.number_of_secs.map(|ns| ns as f64),
-                pace
+                pace,
+                cli.death_mode,
             );
         }
     }

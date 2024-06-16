@@ -36,10 +36,17 @@ pub struct Thok {
     pub accuracy: f64,
     pub std_dev: f64,
     pub pace: Option<f64>,
+    pub death_mode: bool,
 }
 
 impl Thok {
-    pub fn new(prompt: String, number_of_words: usize, number_of_secs: Option<f64>, pace: Option<f64>) -> Self {
+    pub fn new(
+        prompt: String,
+        number_of_words: usize,
+        number_of_secs: Option<f64>,
+        pace: Option<f64>,
+        death_mode: bool
+    ) -> Self {
         Self {
             prompt,
             input: vec![],
@@ -54,6 +61,7 @@ impl Thok {
             accuracy: 0.0,
             std_dev: 0.0,
             pace,
+            death_mode,
         }
     }
 
@@ -194,8 +202,28 @@ impl Thok {
     }
 
     pub fn has_finished(&self) -> bool {
-        (self.input.len() == self.prompt.len())
-            || (self.seconds_remaining.is_some() && self.seconds_remaining.unwrap() <= 0.0)
+        // let mut finished = (self.input.len() == self.prompt.len())
+        //     || (self.seconds_remaining.is_some() && self.seconds_remaining.unwrap() <= 0.0);
+        //
+        // if self.death_mode {
+        //     let has_incorrect = self
+        //         .input
+        //         .iter()
+        //         .any(|i| i.outcome == Outcome::Incorrect);
+        //     finished = finished || has_incorrect;
+        // }
+        //
+        // finished
+        let finished_prompt = self.input.len() == self.prompt.len();
+        let out_of_time =
+            self.seconds_remaining.is_some() && self.seconds_remaining.unwrap() <= 0.0;
+        let is_fatal_error = self.death_mode
+            && self
+                .input
+                .iter()
+                .any(|i| i.outcome == Outcome::Incorrect);
+
+        finished_prompt || out_of_time || is_fatal_error
     }
 
     pub fn save_results(&self) -> io::Result<()> {
