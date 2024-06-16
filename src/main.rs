@@ -118,7 +118,11 @@ impl App<'_> {
         let mut count = 0;
         let pace = cli.pace.map(|p| p as f64);
         let prompt = match new_prompt {
-            Some(_) => new_prompt.unwrap(),
+            Some(_) => {
+                let prompt = new_prompt.unwrap();
+                count = prompt.chars().filter(|c| *c == ' ').count();
+                prompt
+            },
             _ => match cli.number_of_sentences {
                 Some(t) => {
                     let language = cli.supported_language.as_lang();
