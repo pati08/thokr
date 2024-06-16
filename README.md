@@ -1,6 +1,10 @@
 # thokr
 ✨ sleek typing tui with visualized results and historical logging
 
+> This is a fork. From what I can tell, the original project is unmaintained.
+> The links below are for the original and do not implement all of these
+> features. See the [upsream version here](https://github.com/thatvegandev/thokr).
+
 [![GitHub Build Workflow](https://github.com/thatvegandev/thokr/actions/workflows/build.yml/badge.svg)](https://github.com/thatvegandev/thokr/actions/workflows/build.yml)
 [![GitHub Deploy Workflow](https://github.com/thatvegandev/thokr/actions/workflows/deploy.yml/badge.svg)](https://github.com/thatvegandev/thokr/actions/workflows/deploy.yml)
 [![License](https://img.shields.io/badge/License-MIT-default.svg)](./LICENSE.md)
@@ -21,6 +25,9 @@ USAGE:
     thokr [OPTIONS]
 
 OPTIONS:
+    -d, --death-mode
+            is death mode enabled
+
     -f, --full-sentences <NUMBER_OF_SENTENCES>
             number of sentences to use in test
 
@@ -52,6 +59,7 @@ OPTIONS:
 
 ### Cargo
 
+> This installs the upstream version.
 ```sh
 $ cargo install thokr
 ```
@@ -59,9 +67,8 @@ $ cargo install thokr
 ### Docker
 
 ```sh
-$ docker run -it thatvegandev/thokr
+$ docker run -it pati08/thokr
 ```
-
 ### Arch Linux
 
 Install `thokr-git` from the AUR
@@ -76,6 +83,7 @@ For detailed usage run `thokr -h`.
 |:----------------------------|-----------------------------------------------------------------:|
 | `thokr`                     |                          50 of the 200 most common english words |
 | `thokr -w 100`              |                         100 of the 200 most common English words |
+| `thokr -d`                  |        do a test in death mode, where a failure ends the session |
 | `thokr -w 100 -l english1k` |                        100 of the 1000 most common English words |
 | `thokr -w 10 -s 5`          | 10 of the 200 most common English words (hard stop at 5 seconds) |
 | `thokr -p "$(cat foo.txt)"` |                   custom prompt with the output of `cat foo.txt` |
@@ -135,7 +143,7 @@ can easily track your progress over time.
 All contributions are **greatly appreciated**.
 
 If you have a suggestion that would make thokr better, please fork the repo and
-create a [pull request](https://github.com/thatvegandev/thokr/pulls). You can
+create a [pull request](https://github.com/pati08/thokr/pulls). You can
 also simply open an issue and select `Feature Request`
 
 1. Fork the repo
@@ -145,7 +153,7 @@ also simply open an issue and select `Feature Request`
 5. Push to your branch (`git push origin [your_username]/xyz`)
 6. Fill out pull request template
 
-See the [open issues](https://github.com/thatvegandev/thokr/issues) for a full
+See the [open issues](https://github.com/pati08/thokr/issues) for a full
 list of proposed features (and known issues).
 
 ## License
@@ -160,9 +168,3 @@ Check out these amazing projects that inspired thokr!
 - [monkeytype](https://github.com/Miodec/monkeytype)
 - [tui-rs](https://github.com/fdehau/tui-rs)
 - [ttyper](https://github.com/max-niederman/ttyper)
-
-## Follow
-
-[![github](https://img.shields.io/github/followers/thatvegandev?style=social)](https://github.com/thatvegandev)
-[![twitter](https://img.shields.io/twitter/follow/thatvegandev?color=white&style=social)](https://twitter.com/thatvegandev)
-[![youtube](https://img.shields.io/youtube/channel/subscribers/UCEDfokz6igeN4bX7Whq49-g?style=social)](https://youtube.com/user/thatvegandev)
