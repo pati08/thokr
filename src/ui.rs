@@ -2,7 +2,6 @@ use ratatui::{
     buffer::Buffer, layout::{Alignment, Constraint, Direction, Layout, Rect}, style::{Color, Modifier, Style}, text::{Line, Span, Text}, widgets::{Axis, Chart, Dataset, GraphType, Paragraph, Widget, Wrap}
 };
 use unicode_width::UnicodeWidthStr;
-use webbrowser::Browser;
 
 use crate::thok::{Outcome, Thok};
 
@@ -84,11 +83,7 @@ impl Widget for &Thok<'_> {
                 };
 
                 let legend = Paragraph::new(Span::styled(
-                    String::from(if Browser::is_available() {
-                        "(r)etry / (n)ew / (t)weet / (esc)ape"
-                    } else {
-                        "(r)etry / (n)ew / (esc)ape"
-                    }),
+                    "(r)etry / (n)ew / (esc)ape",
                     italic_style,
                 ));
 
@@ -177,11 +172,7 @@ impl Widget for &Thok<'_> {
                 stats.render(chunks[1], buf);
 
                 let legend = Paragraph::new(Span::styled(
-                    String::from(if Browser::is_available() {
-                        "(r)etry / (n)ew / (t)weet / (esc)ape"
-                    } else {
-                        "(r)etry / (n)ew / (esc)ape"
-                    }),
+                    "(r)etry / (n)ew / (esc)ape",
                     italic_style,
                 ));
 
