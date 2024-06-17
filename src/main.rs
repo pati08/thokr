@@ -120,7 +120,7 @@ impl App<'_> {
         let prompt = match new_prompt {
             Some(_) => {
                 let prompt = new_prompt.unwrap();
-                count = prompt.chars().filter(|c| *c == ' ').count();
+                count = prompt.chars().filter(|c| *c == ' ').count() + 1;
                 prompt
             },
             _ => match cli.number_of_sentences {
