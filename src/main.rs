@@ -202,7 +202,7 @@ fn start_tui<B: Backend>(
                     if app.thok.has_started() && !app.thok.has_finished() {
                         app.thok.on_tick();
 
-                        if app.thok.has_finished() {
+                        if app.thok.has_finished() && !app.thok.fatal_error() {
                             app.thok.calc_results();
                         }
                         terminal.draw(|f| ui(app, f))?;
@@ -240,7 +240,7 @@ fn start_tui<B: Backend>(
                             match app.thok.has_finished() {
                                 false => {
                                     app.thok.write(c);
-                                    if app.thok.has_finished() {
+                                    if app.thok.has_finished() && !app.thok.fatal_error() {
                                         app.thok.calc_results();
                                     }
                                 }

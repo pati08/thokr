@@ -220,11 +220,7 @@ impl Thok<'_> {
         let finished_prompt = self.input.len() == self.prompt.len();
         let out_of_time =
             self.seconds_remaining.is_some() && self.seconds_remaining.unwrap() <= 0.0;
-        let is_fatal_error = self.death_mode
-            && self
-                .input
-                .iter()
-                .any(|i| i.outcome == Outcome::Incorrect);
+        let is_fatal_error = self.fatal_error();
 
         finished_prompt || out_of_time || is_fatal_error
     }
@@ -268,5 +264,13 @@ impl Thok<'_> {
         }
 
         Ok(())
+    }
+
+    pub fn fatal_error(&self) -> bool {
+        self.death_mode
+            && self
+                .input
+                .iter()
+                .any(|i| i.outcome == Outcome::Incorrect)
     }
 }
