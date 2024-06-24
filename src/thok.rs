@@ -47,7 +47,7 @@ impl Thok<'_> {
         number_of_words: usize,
         number_of_secs: Option<f64>,
         pace: Option<f64>,
-        death_mode: bool
+        death_mode: bool,
     ) -> Self {
         Self {
             prompt,
@@ -72,8 +72,6 @@ impl Thok<'_> {
         if let Some(v) = self.seconds_remaining {
             self.seconds_remaining = Some(v - (TICK_RATE_MS as f64 / 1000_f64));
         }
-        // self.seconds_remaining =
-        //     Some(self.seconds_remaining.unwrap() - (TICK_RATE_MS as f64 / 1000_f64));
     }
 
     pub fn get_expected_char(&self, idx: usize) -> char {
@@ -156,11 +154,9 @@ impl Thok<'_> {
                 .push((x.0, ((60.00 / x.0) * correct_chars_pressed_until_now) / 5.0))
         }
 
-        if !self.wpm_coords.is_empty() {
-            self.wpm = self.wpm_coords.last().unwrap().1.ceil();
-        } else {
-            self.wpm = 0.0;
-        }
+        self.wpm = (self.number_of_words as f64
+            / (self.started_at.unwrap().elapsed().unwrap().as_secs_f64() / 60.0))
+            .ceil();
         self.accuracy = ((correct_chars.len() as f64 / self.input.len() as f64) * 100.0).round();
 
         let _ = self.save_results();
@@ -205,18 +201,6 @@ impl Thok<'_> {
     }
 
     pub fn has_finished(&self) -> bool {
-        // let mut finished = (self.input.len() == self.prompt.len())
-        //     || (self.seconds_remaining.is_some() && self.seconds_remaining.unwrap() <= 0.0);
-        //
-        // if self.death_mode {
-        //     let has_incorrect = self
-        //         .input
-        //         .iter()
-        //         .any(|i| i.outcome == Outcome::Incorrect);
-        //     finished = finished || has_incorrect;
-        // }
-        //
-        // finished
         let finished_prompt = self.input.len() == self.prompt.len();
         let out_of_time =
             self.seconds_remaining.is_some() && self.seconds_remaining.unwrap() <= 0.0;
@@ -267,10 +251,6 @@ impl Thok<'_> {
     }
 
     pub fn fatal_error(&self) -> bool {
-        self.death_mode
-            && self
-                .input
-                .iter()
-                .any(|i| i.outcome == Outcome::Incorrect)
+        self.death_mode && self.input.iter().any(|i| i.outcome == Outcome::Incorrect)
     }
 }

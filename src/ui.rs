@@ -1,5 +1,9 @@
 use ratatui::{
-    buffer::Buffer, layout::{Alignment, Constraint, Direction, Layout, Rect}, style::{Color, Modifier, Style}, text::{Line, Span, Text}, widgets::{Axis, Chart, Dataset, GraphType, Paragraph, Widget, Wrap}
+    buffer::Buffer,
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    style::{Color, Modifier, Style},
+    text::{Line, Span, Text},
+    widgets::{Axis, Chart, Dataset, GraphType, Paragraph, Widget, Wrap},
 };
 use unicode_width::UnicodeWidthStr;
 
@@ -29,17 +33,14 @@ impl Widget for &Thok<'_> {
         let magenta_style = Style::default().fg(Color::Magenta);
 
         if self.has_finished() {
-            let bad_death = self.death_mode
-                && self
-                    .input
-                    .iter()
-                    .any(|i| i.outcome == Outcome::Incorrect);
-            
+            let bad_death =
+                self.death_mode && self.input.iter().any(|i| i.outcome == Outcome::Incorrect);
+
             if bad_death {
                 let max_lines = area.height - (VERTICAL_MARGIN * 2);
                 let max_chars_per_line = area.width - (HORIZONTAL_MARGIN * 2);
-                let chars_per_line;// = (max_chars_per_line).min(max_lines);
-                let occupied_lines;// = if max_chars_per_line * 2 > max_lines * 2 {
+                let chars_per_line;
+                let occupied_lines;
                 if max_lines * 2 > max_chars_per_line {
                     chars_per_line = max_chars_per_line;
                     occupied_lines = max_chars_per_line / 2;
@@ -47,19 +48,23 @@ impl Widget for &Thok<'_> {
                     occupied_lines = max_lines;
                     chars_per_line = max_lines * 2;
                 }
-                
+
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .horizontal_margin(HORIZONTAL_MARGIN)
-                    .constraints([
-                        Constraint::Length(
-                            ((area.height as f64 - occupied_lines as f64) / 2.0) as u16,
-                        ),
-                        Constraint::Length(occupied_lines),
-                        Constraint::Length(
-                            ((area.height as f64 - occupied_lines as f64) / 2.0) as u16,
-                        ),
-                    ].as_ref()).split(area);
+                    .constraints(
+                        [
+                            Constraint::Length(
+                                ((area.height as f64 - occupied_lines as f64) / 2.0) as u16,
+                            ),
+                            Constraint::Length(occupied_lines),
+                            Constraint::Length(
+                                ((area.height as f64 - occupied_lines as f64) / 2.0) as u16,
+                            ),
+                        ]
+                        .as_ref(),
+                    )
+                    .split(area);
 
                 // This should be switched to OnceCell::get_or_try_init once it
                 // is stabilized.
@@ -82,10 +87,8 @@ impl Widget for &Thok<'_> {
                     widget.render(chunks[1], buf);
                 };
 
-                let legend = Paragraph::new(Span::styled(
-                    "(r)etry / (n)ew / (esc)ape",
-                    italic_style,
-                ));
+                let legend =
+                    Paragraph::new(Span::styled("(r)etry / (n)ew / (esc)ape", italic_style));
 
                 legend.render(chunks[2], buf);
             } else {
@@ -150,11 +153,8 @@ impl Widget for &Thok<'_> {
 
                 chart.render(chunks[0], buf);
 
-                let bad_death = self.death_mode
-                    && self
-                        .input
-                        .iter()
-                        .any(|i| i.outcome == Outcome::Incorrect);
+                let bad_death =
+                    self.death_mode && self.input.iter().any(|i| i.outcome == Outcome::Incorrect);
 
                 let stats = Paragraph::new(Span::styled(
                     if bad_death {
@@ -171,14 +171,11 @@ impl Widget for &Thok<'_> {
 
                 stats.render(chunks[1], buf);
 
-                let legend = Paragraph::new(Span::styled(
-                    "(r)etry / (n)ew / (esc)ape",
-                    italic_style,
-                ));
+                let legend =
+                    Paragraph::new(Span::styled("(r)etry / (n)ew / (esc)ape", italic_style));
 
                 legend.render(chunks[3], buf);
             }
-
         } else {
             let max_chars_per_line = area.width - (HORIZONTAL_MARGIN * 2);
             let mut prompt_occupied_lines =
@@ -188,7 +185,8 @@ impl Widget for &Thok<'_> {
 
             let pace_position = self.pace.and_then(|p| {
                 let total_chars = self.prompt.len() as f64;
-                let progress = ((p / 60.0) * self.started_at?.elapsed().ok()?.as_secs_f64()) / self.number_of_words as f64;
+                let progress = ((p / 60.0) * self.started_at?.elapsed().ok()?.as_secs_f64())
+                    / self.number_of_words as f64;
                 Some((progress * total_chars).round() as usize)
             });
 
@@ -254,11 +252,14 @@ impl Widget for &Thok<'_> {
                     }
                 } else {
                     underlined_dim_bold_style
-                }
+                },
             ));
 
             let full_span = Span::styled(
-                self.prompt[(self.cursor_pos + 1)..self.prompt.len()].to_string(),
+                self.prompt
+                    .chars()
+                    .skip(self.cursor_pos + 1)
+                    .collect::<String>(),
                 dim_bold_style,
             );
             let next_idx = self.cursor_pos + 1;
@@ -267,8 +268,11 @@ impl Widget for &Thok<'_> {
                 if (next_idx..len).contains(&v) {
                     vec![
                         Span::styled(self.prompt[next_idx..v].to_string(), dim_bold_style),
-                        Span::styled(self.get_expected_char(v).to_string(), dim_bold_style.bg(Color::White)),
-                        Span::styled(self.prompt[v + 1..len].to_string(), dim_bold_style)
+                        Span::styled(
+                            self.get_expected_char(v).to_string(),
+                            dim_bold_style.bg(Color::White),
+                        ),
+                        Span::styled(self.prompt[v + 1..len].to_string(), dim_bold_style),
                     ]
                 } else {
                     vec![full_span]
@@ -305,10 +309,11 @@ impl Widget for &Thok<'_> {
 
 fn load_image(
     width: u32,
-    height: u32
+    height: u32,
 ) -> image::ImageResult<image::ImageBuffer<image::Rgba<u8>, Vec<u8>>> {
     let img = image::load_from_memory(include_bytes!("./skull.png"))?.into_rgba8();
-    let resized = image::imageops::resize(&img, width, height, image::imageops::FilterType::Triangle);
+    let resized =
+        image::imageops::resize(&img, width, height, image::imageops::FilterType::Triangle);
     Ok(resized)
 }
 
@@ -323,14 +328,14 @@ fn img_to_str(image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, width: usize)
         if (idx + 1) % width == 1 {
             res.push(' ');
         }
-        let char_to_write = BRIGHTNESS_CHARS.chars().nth(
-            (l as f32 / u8::MAX as f32).round() as usize * (BRIGHTNESS_CHARS.len() - 1)
-        ).unwrap();
+        let char_to_write = BRIGHTNESS_CHARS
+            .chars()
+            .nth((l as f32 / u8::MAX as f32).round() as usize * (BRIGHTNESS_CHARS.len() - 1))
+            .unwrap();
         res.push_str(&char_to_write.to_string());
-        //
     }
-    // res.push('\n');
     res.split(' ').map(|i| i.to_string()).collect()
 }
 
-const BRIGHTNESS_CHARS: &str = r#"$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`\'."#;
+const BRIGHTNESS_CHARS: &str =
+    r#"$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`\'."#;
