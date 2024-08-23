@@ -326,15 +326,15 @@ fn img_to_str(image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, width: usize)
     let lumas = pixels.map(|i| i.to_luma().0[0]);
     for (idx, l) in lumas.enumerate() {
         if (idx + 1) % width == 1 {
-            res.push(' ');
+            res.push('\n');
         }
         let char_to_write = BRIGHTNESS_CHARS
             .chars()
             .nth((l as f32 / u8::MAX as f32).round() as usize * (BRIGHTNESS_CHARS.len() - 1))
             .unwrap();
-        res.push_str(&char_to_write.to_string());
+        res.push(char_to_write);
     }
-    res.split(' ').map(|i| i.to_string()).collect()
+    res.split('\n').map(|i| i.to_string()).collect()
 }
 
 const BRIGHTNESS_CHARS: &str =

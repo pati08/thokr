@@ -11,16 +11,16 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     tty::IsTty,
 };
+use ratatui::{
+    backend::{Backend, CrosstermBackend},
+    Frame, Terminal,
+};
 use std::{
     error::Error,
     io::{self, stdin},
     sync::mpsc,
     thread,
     time::Duration,
-};
-use ratatui::{
-    backend::{Backend, CrosstermBackend},
-    Frame, Terminal,
 };
 
 const TICK_RATE_MS: u64 = 100;
@@ -95,7 +95,13 @@ impl App<'_> {
         };
         if cli.number_of_sentences.is_some() {
             Self {
-                thok: Thok::new(prompt, count, cli.number_of_secs.map(|ns| ns as f64), pace, cli.death_mode),
+                thok: Thok::new(
+                    prompt,
+                    count,
+                    cli.number_of_secs.map(|ns| ns as f64),
+                    pace,
+                    cli.death_mode,
+                ),
                 cli: Some(cli),
             }
         } else {
@@ -121,7 +127,7 @@ impl App<'_> {
                 let prompt = new_prompt.unwrap();
                 count = prompt.chars().filter(|c| *c == ' ').count() + 1;
                 prompt
-            },
+            }
             _ => match cli.number_of_sentences {
                 Some(t) => {
                     let language = cli.supported_language.as_lang();
@@ -137,7 +143,13 @@ impl App<'_> {
             },
         };
         if cli.number_of_sentences.is_some() {
-            self.thok = Thok::new(prompt, count, cli.number_of_secs.map(|ns| ns as f64), pace, cli.death_mode);
+            self.thok = Thok::new(
+                prompt,
+                count,
+                cli.number_of_secs.map(|ns| ns as f64),
+                pace,
+                cli.death_mode,
+            );
         } else {
             self.thok = Thok::new(
                 prompt,
@@ -239,7 +251,13 @@ fn start_tui<B: Backend>(
 
                             match app.thok.has_finished() {
                                 false => {
-                                    app.thok.write(c);
+                                    if key.modifiers.contains(KeyModifiers::CONTROL)
+                                        && key.code == KeyCode::Char('h')
+                                    {
+                                        app.thok.word_backspace();
+                                    } else {
+                                        app.thok.write(c);
+                                    }
                                     if app.thok.has_finished() && !app.thok.fatal_error() {
                                         app.thok.calc_results();
                                     }

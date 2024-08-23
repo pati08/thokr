@@ -169,6 +169,17 @@ impl Thok<'_> {
         }
     }
 
+    pub fn word_backspace(&mut self) {
+        if let Some(Input { char: ' ', .. }) = self.input.last() {
+            self.input.remove(self.cursor_pos - 1);
+            self.decrement_cursor();
+        }
+        while self.input.last().is_some_and(|i| i.char != ' ') {
+            self.input.remove(self.cursor_pos - 1);
+            self.decrement_cursor();
+        }
+    }
+
     pub fn start(&mut self) {
         self.started_at = Some(SystemTime::now());
     }
