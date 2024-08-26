@@ -39,6 +39,7 @@ pub struct Thok<'a> {
     pub pace: Option<f64>,
     pub death_mode: bool,
     pub skull_cache: OnceCell<Text<'a>>,
+    pub tabbed: bool,
 }
 
 impl Thok<'_> {
@@ -65,6 +66,7 @@ impl Thok<'_> {
             pace,
             death_mode,
             skull_cache: OnceCell::new(),
+            tabbed: false,
         }
     }
 
@@ -98,7 +100,8 @@ impl Thok<'_> {
             .filter(|i| i.outcome == Outcome::Correct)
             .collect::<Vec<Input>>();
 
-        let elapsed_secs = self.started_at.unwrap().elapsed().unwrap().as_millis() as f64;
+        let elapsed_secs =
+            self.started_at.unwrap().elapsed().unwrap().as_millis() as f64;
 
         let whole_second_limit = elapsed_secs.floor();
 
@@ -141,7 +144,8 @@ impl Thok<'_> {
             .collect::<Vec<f64>>();
 
         if !correct_chars_at_whole_sec_intervals.is_empty() {
-            self.std_dev = std_dev(&correct_chars_at_whole_sec_intervals).unwrap();
+            self.std_dev =
+                std_dev(&correct_chars_at_whole_sec_intervals).unwrap();
         } else {
             self.std_dev = 0.0;
         }
@@ -150,14 +154,19 @@ impl Thok<'_> {
 
         for x in correct_chars_per_sec {
             correct_chars_pressed_until_now += x.1;
-            self.wpm_coords
-                .push((x.0, ((60.00 / x.0) * correct_chars_pressed_until_now) / 5.0))
+            self.wpm_coords.push((
+                x.0,
+                ((60.00 / x.0) * correct_chars_pressed_until_now) / 5.0,
+            ))
         }
 
         self.wpm = (self.number_of_words as f64
-            / (self.started_at.unwrap().elapsed().unwrap().as_secs_f64() / 60.0))
+            / (self.started_at.unwrap().elapsed().unwrap().as_secs_f64()
+                / 60.0))
             .ceil();
-        self.accuracy = ((correct_chars.len() as f64 / self.input.len() as f64) * 100.0).round();
+        self.accuracy =
+            ((correct_chars.len() as f64 / self.input.len() as f64) * 100.0)
+                .round();
 
         let _ = self.save_results();
     }
@@ -213,8 +222,8 @@ impl Thok<'_> {
 
     pub fn has_finished(&self) -> bool {
         let finished_prompt = self.input.len() == self.prompt.len();
-        let out_of_time =
-            self.seconds_remaining.is_some() && self.seconds_remaining.unwrap() <= 0.0;
+        let out_of_time = self.seconds_remaining.is_some()
+            && self.seconds_remaining.unwrap() <= 0.0;
         let is_fatal_error = self.fatal_error();
 
         finished_prompt || out_of_time || is_fatal_error
@@ -242,7 +251,8 @@ impl Thok<'_> {
                 )?;
             }
 
-            let elapsed_secs = self.started_at.unwrap().elapsed().unwrap().as_secs_f64();
+            let elapsed_secs =
+                self.started_at.unwrap().elapsed().unwrap().as_secs_f64();
 
             writeln!(
                 log_file,
@@ -252,7 +262,7 @@ impl Thok<'_> {
                 self.number_of_secs
                     .map_or(String::from(""), |ns| format!("{:.2}", ns)),
                 elapsed_secs,
-                self.wpm,      // already rounded, no need to round to two decimal places
+                self.wpm, // already rounded, no need to round to two decimal places
                 self.accuracy, // already rounded, no need to round to two decimal places
                 self.std_dev,
             )?;
@@ -262,6 +272,7 @@ impl Thok<'_> {
     }
 
     pub fn fatal_error(&self) -> bool {
-        self.death_mode && self.input.iter().any(|i| i.outcome == Outcome::Incorrect)
+        self.death_mode
+            && self.input.iter().any(|i| i.outcome == Outcome::Incorrect)
     }
 }

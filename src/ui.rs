@@ -65,7 +65,8 @@ impl Thok<'_> {
                 [
                     Constraint::Length(
                         ((area.height as f64 - prompt_occupied_lines as f64)
-                            / 2.0) as u16,
+                            / 2.0) as u16
+                            - 1,
                     ),
                     Constraint::Length(time_left_lines),
                     Constraint::Length(prompt_occupied_lines),
@@ -73,6 +74,7 @@ impl Thok<'_> {
                         ((area.height as f64 - prompt_occupied_lines as f64)
                             / 2.0) as u16,
                     ),
+                    Constraint::Length(1),
                 ]
                 .as_ref(),
             )
@@ -178,6 +180,17 @@ impl Thok<'_> {
 
             timer.render(chunks[1], buf);
         }
+
+        let legend = if self.tabbed {
+            Paragraph::new(Span::styled(
+                "(r)etry / (n)ew / (esc)ape / (tab) return",
+                ITALIC_STYLE,
+            ))
+        } else {
+            Paragraph::new(Span::styled("Press tab for options", ITALIC_STYLE))
+        };
+
+        legend.render(chunks[4], buf);
     }
 
     fn render_finished(&self, area: Rect, buf: &mut Buffer) {

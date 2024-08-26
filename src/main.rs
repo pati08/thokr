@@ -8,7 +8,10 @@ use clap::{ArgEnum, ErrorKind, IntoApp, Parser};
 use crossterm::{
     event::{self, Event, KeyCode, KeyEvent, KeyModifiers},
     execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{
+        disable_raw_mode, enable_raw_mode, EnterAlternateScreen,
+        LeaveAlternateScreen,
+    },
     tty::IsTty,
 };
 use ratatui::{
@@ -84,7 +87,8 @@ impl App<'_> {
             cli.prompt.clone().unwrap()
         } else if cli.number_of_sentences.is_some() {
             let language = cli.supported_language.as_lang();
-            let (s, count_tmp) = language.get_random_sentence(cli.number_of_sentences.unwrap());
+            let (s, count_tmp) =
+                language.get_random_sentence(cli.number_of_sentences.unwrap());
             count = count_tmp;
             // sets the word count for the sentence.
             s.join("")
@@ -198,7 +202,8 @@ fn start_tui<B: Backend>(
 ) -> Result<(), Box<dyn Error>> {
     let cli = app.cli.clone().expect("Expected CLI");
 
-    let should_tick = cli.number_of_secs.unwrap_or(0) > 0 || matches!(cli.pace, Some(_v));
+    let should_tick =
+        cli.number_of_secs.unwrap_or(0) > 0 || matches!(cli.pace, Some(_v));
 
     let thok_events = get_thok_events(should_tick);
 
@@ -241,24 +246,34 @@ fn start_tui<B: Backend>(
                             exit_type = ExitType::New;
                             break;
                         }
+                        KeyCode::Tab => {
+                            if !app.thok.has_finished() {
+                                app.thok.tabbed = !app.thok.tabbed;
+                            }
+                        }
                         KeyCode::Char(c) => {
                             if key.modifiers.contains(KeyModifiers::CONTROL)
-                                && key.code == KeyCode::Char('c')
+                                && c == 'c'
                             // ctrl+c to quit
                             {
                                 break;
                             }
 
-                            match app.thok.has_finished() {
+                            match app.thok.has_finished() || app.thok.tabbed {
                                 false => {
-                                    if key.modifiers.contains(KeyModifiers::CONTROL)
-                                        && key.code == KeyCode::Char('h')
+                                    if key
+                                        .modifiers
+                                        .contains(KeyModifiers::CONTROL)
+                                        && c == 'h'
                                     {
                                         app.thok.word_backspace();
                                     } else {
                                         app.thok.write(c);
                                     }
-                                    if app.thok.has_finished() && !app.thok.fatal_error() {
+
+                                    if app.thok.has_finished()
+                                        && !app.thok.fatal_error()
+                                    {
                                         app.thok.calc_results();
                                     }
                                 }
