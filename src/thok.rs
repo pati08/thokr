@@ -160,7 +160,14 @@ impl Thok<'_> {
             ))
         }
 
-        self.wpm = (self.number_of_words as f64
+        let correct_words = self
+            .input
+            .clone()
+            .split(|i| i.char == ' ')
+            .filter(|&s| !s.iter().any(|i| i.outcome == Outcome::Incorrect))
+            .count();
+
+        self.wpm = (correct_words as f64
             / (self.started_at.unwrap().elapsed().unwrap().as_secs_f64()
                 / 60.0))
             .ceil();

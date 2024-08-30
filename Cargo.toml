@@ -1,7 +1,7 @@
 [package]
 name = "thokr"
 description = "sleek typing tui with visualized results and historical logging"
-version = "0.4.1"
+version = "0.5.0"
 readme = "README.md"
 repository = "https://github.com/thatvegandev/thokr.git"
 homepage = "https://github.com/thatvegandev/thokr"
