@@ -283,3 +283,141 @@ impl Thok<'_> {
             && self.input.iter().any(|i| i.outcome == Outcome::Incorrect)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    macro_rules! build_input {
+        ($s:expr) => {
+            $s.chars()
+                .map(|c| Input {
+                    char: c,
+                    outcome: Outcome::Correct,
+                    timestamp: SystemTime::now(),
+                })
+                .collect::<Vec<_>>()
+        };
+        ($i:expr, $g:expr) => {
+            $i.chars().zip($g.chars()).map(|(c, g)| Input {
+                char: c,
+                outcome: if c == g {
+                    Outcome::Correct
+                } else {
+                    Outcome::Incorrect
+                },
+                timestamp: SystemTime::now(),
+            }).collect::<Vec<_>>()
+        };
+    }
+    macro_rules! assert_within {
+        ($first:expr, $second:expr, $maxdelta:expr) => {
+            if ($first - $second).abs() > $maxdelta {
+                panic!(
+                    "assert_within failed: {} is not close enough to {}",
+                    $first, $second
+                );
+            }
+        };
+    }
+    #[test]
+    fn test_wpm() {
+        use std::time::Duration;
+        let mut thok = Thok {
+            prompt: "one two three".to_string(),
+            input: build_input!("one two three"),
+            raw_coords: Vec::new(),
+            wpm_coords: Vec::new(),
+            cursor_pos: 13,
+            started_at: Some(SystemTime::now() - Duration::from_secs(1)),
+            seconds_remaining: None,
+            number_of_secs: None,
+            number_of_words: 3,
+            wpm: 0.,
+            accuracy: 0.,
+            std_dev: 0.,
+            pace: None,
+            death_mode: false,
+            skull_cache: OnceCell::new(),
+            tabbed: false,
+        };
+
+        thok.calc_results();
+        assert_within!(thok.wpm, 180., 5.);
+
+        thok.started_at = Some(SystemTime::now() - Duration::from_secs(3));
+        thok.calc_results();
+        assert_within!(thok.wpm, 60., 5.);
+    }
+    #[test]
+    fn test_accuracy() {
+        use std::time::Duration;
+
+        let mut thok = Thok {
+            prompt: "one two three".to_string(),
+            input: build_input!("one two thrdd", "one two three"),
+            raw_coords: Vec::new(),
+            wpm_coords: Vec::new(),
+            cursor_pos: 13,
+            started_at: Some(SystemTime::now() - Duration::from_secs(1)),
+            seconds_remaining: None,
+            number_of_secs: None,
+            number_of_words: 3,
+            wpm: 0.,
+            accuracy: 0.,
+            std_dev: 0.,
+            pace: None,
+            death_mode: false,
+            skull_cache: OnceCell::new(),
+            tabbed: false,
+        };
+
+        thok.calc_results();
+        assert_within!(thok.accuracy, 85., 5.);
+
+        thok.input = build_input!("one two three");
+        thok.calc_results();
+        assert_within!(thok.accuracy, 100., 5.);
+    }
+    #[test]
+    fn test_word_backspace() {
+        use std::time::Duration;
+
+        let mut thok = Thok {
+            prompt: "one two three four".to_string(),
+            input: build_input!("one two three four"),
+            raw_coords: Vec::new(),
+            wpm_coords: Vec::new(),
+            cursor_pos: 18,
+            started_at: Some(SystemTime::now() - Duration::from_secs(1)),
+            seconds_remaining: None,
+            number_of_secs: None,
+            number_of_words: 4,
+            wpm: 0.,
+            accuracy: 0.,
+            std_dev: 0.,
+            pace: None,
+            death_mode: false,
+            skull_cache: OnceCell::new(),
+            tabbed: false,
+        };
+
+        thok.word_backspace();
+        let input = thok
+            .input
+            .clone()
+            .into_iter()
+            .map(|i| i.char)
+            .collect::<String>();
+        assert_eq!(input, "one two three ");
+
+        thok.word_backspace();
+        let input = thok
+            .input
+            .clone()
+            .into_iter()
+            .map(|i| i.char)
+            .collect::<String>();
+        assert_eq!(input, "one two ");
+    }
+}
